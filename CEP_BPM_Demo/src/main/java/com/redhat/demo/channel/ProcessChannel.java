@@ -56,7 +56,7 @@ public class ProcessChannel implements Channel
                     procVars.put("sensorTemp", sensor);
                     procVars.put("threshold", threshold);
                     cal = Calendar.getInstance();
-                    sdf = new SimpleDateFormat("HH:mm:ss");
+                    sdf = new SimpleDateFormat("hh:mm:ss:SS a");
                     procVars.put("name", "[" + sdf.format(cal.getTime()) + "] " + parts[2]);
                   }
                 catch(Exception ex)
