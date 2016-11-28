@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry kind="src" path="src/main/resources"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="DROOLS/Drools"/>
+	<classpathentry kind="con" path="JBPM/jbpm"/>
+	<classpathentry kind="lib" path="/home/ajhajj/RedHat/Products/BPMS/jboss-bpmsuite-6.3-engine/kie-remote-client-6.4.0.Final-redhat-3.jar"/>
+	<classpathentry kind="lib" path="/home/ajhajj/RedHat/Products/BPMS/jboss-bpmsuite-6.3-engine/kie-remote-common-6.4.0.Final-redhat-3.jar"/>
+	<classpathentry kind="lib" path="/home/ajhajj/RedHat/Products/BPMS/jboss-bpmsuite-6.3-engine/kie-remote-jaxb-6.4.0.Final-redhat-3.jar"/>
+	<classpathentry kind="lib" path="/home/ajhajj/RedHat/Products/BPMS/jboss-bpmsuite-6.3-engine/kie-remote-ws-common-6.4.0.Final-redhat-3.jar"/>
+	<classpathentry kind="output" path="target/classes"/>
+</classpath>

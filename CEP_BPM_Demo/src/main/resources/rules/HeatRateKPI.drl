@@ -1,0 +1,20 @@
+package com.redhat.demo
+
+import com.redhat.demo.model.SensorReading;
+
+global com.redhat.demo.model.Thresholds thresholds
+
+dialect "mvel"
+
+declare SensorReading
+  @role( event )
+end
+
+rule "Heat rate too low"
+  when
+    SensorReading( sensorId == "engineTemp", unit == "C", value < thresholds.getEngineTempLow(), $v : value ) from entry-point "KPI Stream";
+  then
+    //System.out.println("Heat rate: " + $v + " is below " + thresholds.getEngineTempLow());
+    channels["process"].send($v + "##" + thresholds.getEngineTempLow() + "##Heat rate too low");
+    
+end
