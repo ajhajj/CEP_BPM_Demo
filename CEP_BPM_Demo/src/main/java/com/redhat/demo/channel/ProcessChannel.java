@@ -1,6 +1,8 @@
 package com.redhat.demo.channel;
 
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,6 +39,8 @@ public class ProcessChannel implements Channel
         String processid = "";
         String[] parts = null;
         HashMap<String, Object> procVars = new HashMap<>();
+        Calendar cal = null;
+        SimpleDateFormat sdf = null;
         
         System.out.println("ProcessChannel called");
         if((object != null) && ((msg = object.toString()).indexOf(MSG_TOKEN) != -1))
@@ -51,7 +55,9 @@ public class ProcessChannel implements Channel
                     Float threshold = new Float(parts[1]);
                     procVars.put("sensorTemp", sensor);
                     procVars.put("threshold", threshold);
-                    procVars.put("name", parts[2]);
+                    cal = Calendar.getInstance();
+                    sdf = new SimpleDateFormat("HH:mm:ss");
+                    procVars.put("name", "[" + sdf.format(cal.getTime()) + "] " + parts[2]);
                   }
                 catch(Exception ex)
                   {
