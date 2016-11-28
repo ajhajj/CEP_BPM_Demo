@@ -1,5 +1,8 @@
 package com.redhat.demo.test;
 
+import java.io.InputStream;
+import java.util.List;
+
 import org.kie.api.KieServices;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
@@ -15,45 +18,63 @@ import com.redhat.demo.model.Thresholds;
 @SuppressWarnings("restriction")
 public class SensorTest
   {
-    private static final Logger LOGGER     = LoggerFactory.getLogger(SensorTest.class);
-    private static final String CEP_STREAM = "KPI Stream";
+    private static final Logger LOGGER          = LoggerFactory.getLogger(SensorTest.class);
+    private static final String CEP_STREAM      = "KPI Stream";
+    private static final String EVENTS_CSV_FILE = "events.csv";
 
     public static void main(String[] args)
       {
+        FactHandle factHandle = null;
+        KieServices ks = null;
+        KieContainer kContainer = null;
+        KieSession kSession = null;
+        Thresholds thresholds = null;
+        EntryPoint ep = null;
+        InputStream eventsInputStream = null;
+        List<SensorReading> events = null;
+        int count = 0;
+        
         try
           {
             // initialize the knowledge base
             LOGGER.info("Initialize KIE.");
-            KieServices ks = KieServices.Factory.get();
-            KieContainer kContainer = ks.getKieClasspathContainer();
+            ks = KieServices.Factory.get();
+            kContainer = ks.getKieClasspathContainer();
             LOGGER.info("Creating KieSession.");
-            KieSession kSession = kContainer.newKieSession("ksession-rules");
+            kSession = kContainer.newKieSession("ksession-rules");
 
             // create instance of Thresholds config class and set as global
-            Thresholds t = new Thresholds();
-            kSession.setGlobal("thresholds", t);
+            thresholds = new Thresholds();
+            kSession.setGlobal("thresholds", thresholds);
 
             // register channel
             kSession.registerChannel("process", new ProcessChannel());
-            
+
             // get handle for KPI metrics stream
-            EntryPoint ep = kSession.getEntryPoint(CEP_STREAM);
+            ep = kSession.getEntryPoint(CEP_STREAM);
 
-            LOGGER.info("Setting low heat rate threshold to 100.");
             Thresholds.setEngineTempLow(100.0);
-            SensorReading s = new SensorReading("engineTemp", 0L, 120.6, "C");
-            LOGGER.info("Inserting event with heat rate of " + s.getValue());
-            FactHandle factHandle = ep.insert(s);
-            LOGGER.debug("FactHandle: " + factHandle.toExternalForm());
-            kSession.fireAllRules();
+            LOGGER.info("Setting low heat rate threshold to " + Thresholds.getEngineTempLow());
 
-            LOGGER.info("Setting low heat rate threshold to 200.");
-            Thresholds.setEngineTempLow(200.0);
-            s = new SensorReading("engineTemp", 5L, 150.6, "C");
-            LOGGER.info("Inserting event with heat rate of " + s.getValue());
-            factHandle = ep.insert(s);
-            LOGGER.debug("FactHandle: " + factHandle.toExternalForm());
-            kSession.fireAllRules();
+            eventsInputStream = SensorTest.class.getClassLoader().getResourceAsStream(EVENTS_CSV_FILE);
+            events = FactsLoader.loadEvents(eventsInputStream);
+
+            if(events != null)
+              {
+                for(SensorReading nextEvent : events)
+                  {
+                    if(++count == 10)
+                      {
+                        Thresholds.setEngineTempLow(200.0);
+                        LOGGER.info("Setting low heat rate threshold to " + Thresholds.getEngineTempLow());
+                      }
+                    
+                    LOGGER.info("Inserting event with heat rate of " + nextEvent.getValue());
+                    factHandle = ep.insert(nextEvent);
+                    LOGGER.debug("FactHandle: " + factHandle.toExternalForm());
+                    kSession.fireAllRules();
+                  }
+              }
 
             LOGGER.info("Disposing session.");
             kSession.dispose();
